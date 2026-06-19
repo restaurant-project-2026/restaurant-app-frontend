@@ -6,28 +6,33 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { getRestaurantHeroImage, getRestaurantInteriorImage } from '../utils/images';
 
+// page d'accueil : section hero, présentation du restaurant et aperçu de 4 plats vedettes
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // incrémenter ce compteur depuis le bouton "Try Again" pour relancer le chargement
+  const [retryCount, setRetryCount] = useState(0);
 
-  const loadFeatured = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const items = await getMenuItems();
-      const available = items.filter((i) => i.isAvailable);
-      setFeatured(available.slice(0, 4));
-    } catch {
-      setError('Unable to load dishes. Please make sure the API server is running.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // se déclenche au premier affichage et à chaque clic sur "Try Again" (via retryCount)
+  // charge les plats disponibles et n'en garde que les 4 premiers pour la mise en avant
   useEffect(() => {
-    loadFeatured();
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const items = await getMenuItems();
+        const available = items.filter((i) => i.isAvailable);
+        setFeatured(available.slice(0, 4));
+      } catch {
+        setError('Unable to load dishes. Please make sure the API server is running.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [retryCount]);
 
   return (
     <div>
@@ -98,7 +103,7 @@ export default function Home() {
           </div>
 
           {loading && <LoadingSpinner />}
-          {error && <ErrorMessage message={error} onRetry={loadFeatured} />}
+          {error && <ErrorMessage message={error} onRetry={() => setRetryCount((c) => c + 1)} />}
 
           {!loading && !error && (
             <>

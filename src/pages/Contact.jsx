@@ -1,13 +1,16 @@
 import { useState } from 'react';
 
+// page de contact : infos du restaurant, horaires et formulaire de message
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
 
+  // met à jour le champ correspondant dans le formulaire à chaque frappe
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  // simule l'envoi du formulaire (pas de vrai appel API ici, uniquement une démo visuelle)
   const handleSubmit = (e) => {
     e.preventDefault();
     setSent(true);

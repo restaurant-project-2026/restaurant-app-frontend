@@ -1,11 +1,12 @@
-import { getDishImage } from '../utils/images';
+import { getDishImage } from "../utils/images";
 
+// carte affichée pour chaque plat : photo, nom, prix, description et badge "Indisponible"
 export default function DishCard({ item, categoryName }) {
   const imageUrl = getDishImage(item, categoryName);
 
   return (
     <article className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-stone-100">
-      <div className="aspect-[4/3] overflow-hidden">
+      <div className="aspect-4/3 overflow-hidden">
         <img
           src={imageUrl}
           alt={item.name}
@@ -21,7 +22,9 @@ export default function DishCard({ item, categoryName }) {
           </span>
         </div>
         {item.description && (
-          <p className="mt-2 text-sm text-stone-600 line-clamp-2">{item.description}</p>
+          <p className="mt-2 text-sm text-stone-600 line-clamp-2">
+            {item.description}
+          </p>
         )}
         {!item.isAvailable && (
           <span className="inline-block mt-2 text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded">

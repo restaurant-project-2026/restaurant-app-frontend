@@ -5,8 +5,10 @@ import { getTables } from '../api/tables';
 import ErrorMessage from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 
+// labels des 3 étapes du formulaire de réservation
 const STEPS = ['Your Details', 'Date & Table', 'Confirmation'];
 
+// valeurs initiales du formulaire, utilisées aussi pour le réinitialiser après soumission
 const initialForm = {
   firstName: '',
   lastName: '',
@@ -18,6 +20,7 @@ const initialForm = {
   tableId: '',
 };
 
+// page de réservation en 3 étapes : coordonnées → date/table → récapitulatif et envoi
 export default function Reservation() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
@@ -27,26 +30,29 @@ export default function Reservation() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const loadTables = async () => {
-    setLoadingTables(true);
-    setError(null);
-    try {
-      const data = await getTables();
-      const available = data.filter((t) => t.isAvailable && t.capacity >= form.guestsCount);
-      setTables(available);
-    } catch {
-      setError('Unable to load available tables.');
-    } finally {
-      setLoadingTables(false);
-    }
-  };
-
+  // recharge les tables quand l'utilisateur passe à l'étape 2 ou change le nombre de convives
   useEffect(() => {
-    if (step === 1) {
-      loadTables();
-    }
+    if (step !== 1) return;
+
+    const fetchTables = async () => {
+      setLoadingTables(true);
+      setError(null);
+      try {
+        const data = await getTables();
+        // garde uniquement les tables dispo avec assez de places pour le nombre de convives
+        const available = data.filter((t) => t.isAvailable && t.capacity >= form.guestsCount);
+        setTables(available);
+      } catch {
+        setError('Unable to load available tables.');
+      } finally {
+        setLoadingTables(false);
+      }
+    };
+
+    fetchTables();
   }, [step, form.guestsCount]);
 
+  // met à jour le champ du formulaire à chaque frappe, convertit en nombre pour guestsCount et tableId
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -55,6 +61,7 @@ export default function Reservation() {
     }));
   };
 
+  // vérifie que tous les champs obligatoires de l'étape courante sont remplis avant de continuer
   const validateStep = () => {
     if (step === 0) {
       if (!form.firstName.trim() || !form.lastName.trim()) {
@@ -80,15 +87,18 @@ export default function Reservation() {
     return true;
   };
 
+  // passe à l'étape suivante uniquement si la validation réussit
   const nextStep = () => {
     if (validateStep()) setStep((s) => Math.min(s + 1, 2));
   };
 
+  // revient à l'étape précédente et efface le message d'erreur
   const prevStep = () => {
     setError(null);
     setStep((s) => Math.max(s - 1, 0));
   };
 
+  // soumet la réservation : crée d'abord le client, récupère son ID puis crée la réservation
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep()) return;
@@ -104,6 +114,7 @@ export default function Reservation() {
         phone: form.phone.trim() || null,
       });
 
+      // l'API ne retourne pas l'ID après création donc on recherche le client par ses infos
       const customer = await findCustomerAfterCreate({
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
@@ -115,6 +126,7 @@ export default function Reservation() {
         throw new Error('Customer not found after creation.');
       }
 
+      // l'API attend le format HH:mm:ss, on ajoute ":00" si l'heure est au format HH:mm
       const timeFormatted =
         form.reservationTime.length === 5
           ? `${form.reservationTime}:00`
@@ -141,8 +153,10 @@ export default function Reservation() {
     }
   };
 
+  // retrouve l'objet table sélectionné pour l'afficher dans le récapitulatif (étape 3)
   const selectedTable = tables.find((t) => t.id === Number(form.tableId));
 
+  // écran de confirmation affiché après un envoi réussi
   if (success) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center bg-stone-50 px-4">
@@ -179,6 +193,7 @@ export default function Reservation() {
       </section>
 
       <div className="max-w-xl mx-auto px-4 py-10">
+        {/* indicateur de progression : chaque étape est numérotée et colorée selon l'avancement */}
         <div className="flex justify-between mb-8">
           {STEPS.map((label, i) => (
             <div
@@ -194,7 +209,7 @@ export default function Reservation() {
               >
                 {i + 1}
               </span>
-              <span className="block hidden sm:block">{label}</span>
+              <span className="hidden sm:block">{label}</span>
             </div>
           ))}
         </div>
@@ -209,6 +224,7 @@ export default function Reservation() {
             </div>
           )}
 
+          {/* étape 1 : saisie des coordonnées du client */}
           {step === 0 && (
             <div className="space-y-4 text-left">
               <h2 className="font-serif text-xl text-stone-900 mb-4">Your Details</h2>
@@ -257,6 +273,7 @@ export default function Reservation() {
             </div>
           )}
 
+          {/* étape 2 : choix de la date, l'heure, le nombre de convives et la table */}
           {step === 1 && (
             <div className="space-y-4 text-left">
               <h2 className="font-serif text-xl text-stone-900 mb-4">Date & Table</h2>
@@ -346,6 +363,7 @@ export default function Reservation() {
             </div>
           )}
 
+          {/* étape 3 : récapitulatif avant confirmation finale */}
           {step === 2 && (
             <div className="text-left space-y-3">
               <h2 className="font-serif text-xl text-stone-900 mb-4">Summary</h2>

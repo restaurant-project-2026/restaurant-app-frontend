@@ -1,3 +1,5 @@
+// Affiche un message d'erreur en rouge avec un bouton "réessayer" optionnel
+// onRetry est une fonction passée par le parent pour relancer la requête en cas d'échec
 export default function ErrorMessage({ message, onRetry }) {
   return (
     <div className="rounded-xl bg-red-50 border border-red-200 p-6 text-center max-w-md mx-auto">

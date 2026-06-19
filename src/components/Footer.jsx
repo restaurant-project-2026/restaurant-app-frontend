@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+// pied de page affiché sur toutes les pages
+// contient les infos du restaurant, les liens de navigation et les horaires
 export default function Footer() {
   return (
     <footer className="bg-stone-900 text-stone-400 border-t border-amber-900/30 mt-auto">
@@ -34,6 +36,11 @@ export default function Footer() {
                   Contact
                 </Link>
               </li>
+              <li>
+                <Link to="/my-reservations" className="hover:text-amber-400 transition-colors">
+                  My Reservations
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
@@ -45,6 +52,11 @@ export default function Footer() {
         </div>
         <p className="text-center text-xs text-stone-500 mt-8 pt-6 border-t border-stone-800">
           © {new Date().getFullYear()} Olympique de Marseille — Projet final
+          {' · '}
+          {/* lien discret vers la page admin placé dans le footer pour ne pas encombrer la navbar */}
+          <Link to="/admin" className="hover:text-amber-500 transition-colors">
+            Admin
+          </Link>
         </p>
       </div>
     </footer>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getCategories } from '../api/categories';
 import { getMenuItems } from '../api/menuItems';
 import CategoryFilter from '../components/CategoryFilter';
@@ -6,6 +6,7 @@ import DishCard from '../components/DishCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
+// page menu : charge toutes les catégories et tous les plats puis permet de filtrer
 export default function Menu() {
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
@@ -13,39 +14,40 @@ export default function Menu() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [cats, items] = await Promise.all([getCategories(), getMenuItems()]);
-      setCategories(cats);
-      setMenuItems(items);
-    } catch {
-      setError('Unable to load the menu. Please make sure the API server is running.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // incrémenter ce compteur depuis le bouton "Try Again" pour relancer le chargement
+  const [retryCount, setRetryCount] = useState(0);
 
+  // se déclenche au premier affichage et à chaque clic sur "Try Again" (via retryCount)
+  // charge les catégories et les plats en parallèle pour optimiser le temps de chargement
   useEffect(() => {
-    loadData();
-  }, []);
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [cats, items] = await Promise.all([getCategories(), getMenuItems()]);
+        setCategories(cats);
+        setMenuItems(items);
+      } catch {
+        setError('Unable to load the menu. Please make sure the API server is running.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const categoryMap = useMemo(() => {
-    const map = {};
-    categories.forEach((c) => {
-      map[c.id] = c.name;
-    });
-    return map;
-  }, [categories]);
+    fetchData();
+  }, [retryCount]);
 
-  const filteredItems = useMemo(() => {
-    let items = menuItems.filter((i) => i.isAvailable);
-    if (selectedCategoryId !== null) {
-      items = items.filter((i) => i.categoryId === selectedCategoryId);
-    }
-    return items;
-  }, [menuItems, selectedCategoryId]);
+  // construit un dictionnaire { id → nom } pour retrouver le nom d'une catégorie facilement
+  const categoryMap = {};
+  categories.forEach((c) => {
+    categoryMap[c.id] = c.name;
+  });
+
+  // filtre les plats : on garde uniquement les disponibles et on applique le filtre de catégorie si actif
+  let filteredItems = menuItems.filter((i) => i.isAvailable);
+  if (selectedCategoryId !== null) {
+    filteredItems = filteredItems.filter((i) => i.categoryId === selectedCategoryId);
+  }
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -56,7 +58,7 @@ export default function Menu() {
 
       <section className="py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {loading && <LoadingSpinner label="Loading menu..." />}
-        {error && <ErrorMessage message={error} onRetry={loadData} />}
+        {error && <ErrorMessage message={error} onRetry={() => setRetryCount((c) => c + 1)} />}
 
         {!loading && !error && (
           <>

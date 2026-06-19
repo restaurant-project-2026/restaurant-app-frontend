@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
+// génère les classes CSS d'un lien de nav selon s'il est actif ou non
 const navLinkClass = ({ isActive }) =>
   `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
     isActive
@@ -8,6 +9,8 @@ const navLinkClass = ({ isActive }) =>
       : 'text-stone-200 hover:bg-amber-800/60 hover:text-white'
   }`;
 
+// Barre de navigation fixée en haut de page avec les liens et les boutons d'action
+// sur mobile les liens sont cachés et remplacés par un menu hamburger
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
@@ -39,13 +42,23 @@ export default function Navbar() {
             </NavLink>
           </div>
 
-          <Link
-            to="/reservation"
-            className="hidden sm:inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 transition-colors"
-          >
-            Book a Table
-          </Link>
+          {/* boutons d'action rapide visibles sur tablette et desktop */}
+          <div className="hidden sm:flex items-center gap-2">
+            <Link
+              to="/my-reservations"
+              className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-800/60 transition-colors"
+            >
+              My Reservations
+            </Link>
+            <Link
+              to="/reservation"
+              className="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 transition-colors"
+            >
+              Book a Table
+            </Link>
+          </div>
 
+          {/* bouton hamburger affiché uniquement sur mobile pour ouvrir/fermer le menu */}
           <button
             type="button"
             className="md:hidden p-2 text-stone-200"
@@ -62,6 +75,7 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* menu déroulant mobile affiché quand open est true */}
         {open && (
           <div className="md:hidden pb-4 flex flex-col gap-1">
             <NavLink to="/" end className={navLinkClass} onClick={() => setOpen(false)}>
@@ -75,6 +89,9 @@ export default function Navbar() {
             </NavLink>
             <NavLink to="/contact" className={navLinkClass} onClick={() => setOpen(false)}>
               Contact
+            </NavLink>
+            <NavLink to="/my-reservations" className={navLinkClass} onClick={() => setOpen(false)}>
+              My Reservations
             </NavLink>
           </div>
         )}

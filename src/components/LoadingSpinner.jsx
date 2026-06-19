@@ -1,3 +1,5 @@
+// indicateur de chargement réutilisable affiché pendant qu'une requête API est en cours
+// le label peut être personnalisé selon le contexte (menu, tables, réservations...)
 export default function LoadingSpinner({ label = 'Loading...' }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 gap-4">

@@ -1,3 +1,5 @@
+// barre de filtres par catégorie : un bouton "All" + un bouton par catégorie reçue en props
+// le bouton actif est mis en surbrillance, cliquer dessus notifie le parent via onSelect
 export default function CategoryFilter({ categories, selectedId, onSelect }) {
   return (
     <div className="flex flex-wrap justify-center gap-2 mb-10">

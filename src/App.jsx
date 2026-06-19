@@ -5,7 +5,11 @@ import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Reservation from './pages/Reservation';
 import Contact from './pages/Contact';
+import Admin from './pages/Admin';
+import MyReservations from './pages/MyReservations';
 
+// Composant racine : définit la mise en page globale (navbar + contenu + footer)
+// et déclare toutes les routes accessibles via l'URL
 function App() {
   return (
     <BrowserRouter>
@@ -17,6 +21,8 @@ function App() {
             <Route path="/menu" element={<Menu />} />
             <Route path="/reservation" element={<Reservation />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/my-reservations" element={<MyReservations />} />
           </Routes>
         </main>
         <Footer />
