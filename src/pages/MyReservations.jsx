@@ -1,76 +1,91 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getCustomers } from '../api/customers';
-import { getReservations } from '../api/reservations';
+import { cancelReservation, getReservations } from '../api/reservations';
 import { getTables } from '../api/tables';
+import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
-// page client : permet de retrouver ses réservations en saisissant son email
-// la vérification du mot de passe sera ajoutée côté backend
+// page client connecté : voir ses réservations et les annuler si besoin
 export default function MyReservations() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { user } = useAuth();
   const [reservations, setReservations] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searched, setSearched] = useState(false);
+  const [cancellingId, setCancellingId] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-  // cherche le client par email puis filtre et affiche uniquement ses réservations
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setReservations([]);
-    setSearched(false);
+  // charge les réservations du client connecté via son email
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      // le mot de passe sera vérifié par le backend, pour l'instant on l'ignore
-      const [customers, allReservations, tables] = await Promise.all([
-        getCustomers(),
-        getReservations(),
-        getTables(),
-      ]);
+      try {
+        const [customers, allReservations, tables] = await Promise.all([
+          getCustomers(),
+          getReservations(),
+          getTables(),
+        ]);
 
-      // recherche le client dont l'email correspond (insensible à la casse)
-      const customer = customers.find(
-        (c) => c.email && c.email.toLowerCase() === email.trim().toLowerCase()
-      );
+        const customer = customers.find(
+          (c) =>
+            c.email &&
+            c.email.toLowerCase() === user.customerEmail?.toLowerCase()
+        );
 
-      if (!customer) {
-        setError('No account found with this email.');
-        setSearched(true);
-        return;
-      }
-
-      // dictionnaire { id → numéro de table } pour afficher le numéro dans les cartes
-      const tableById = {};
-      tables.forEach((t) => {
-        tableById[t.id] = t.tableNumber;
-      });
-
-      // filtre les réservations de ce client et les trie du plus récent au plus ancien
-      const mine = allReservations
-        .filter((r) => r.customerId === customer.id)
-        .map((r) => ({
-          id: r.id,
-          date: r.reservationDate,
-          time: r.reservationTime,
-          table: tableById[r.tableId] ?? '—',
-          guests: r.guestsCount,
-          status: r.status,
-        }))
-        .sort((a, b) => {
-          const dateCompare = b.date.localeCompare(a.date);
-          if (dateCompare !== 0) return dateCompare;
-          return String(b.time).localeCompare(String(a.time));
+        const tableById = {};
+        tables.forEach((t) => {
+          tableById[t.id] = t.tableNumber;
         });
 
-      setReservations(mine);
-      setSearched(true);
+        if (!customer) {
+          setReservations([]);
+          return;
+        }
+
+        const mine = allReservations
+          .filter((r) => r.customerId === customer.id)
+          .map((r) => ({
+            id: r.id,
+            date: r.reservationDate,
+            time: r.reservationTime,
+            table: tableById[r.tableId] ?? '—',
+            guests: r.guestsCount,
+            status: r.status,
+          }))
+          .sort((a, b) => {
+            const dateCompare = b.date.localeCompare(a.date);
+            if (dateCompare !== 0) return dateCompare;
+            return String(b.time).localeCompare(String(a.time));
+          });
+
+        setReservations(mine);
+      } catch {
+        setError('Unable to load your reservations. Please make sure the API server is running.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user.customerEmail, retryCount]);
+
+  // annule une réservation puis recharge la liste
+  const handleCancel = async (id) => {
+    if (!window.confirm('Cancel this reservation?')) return;
+
+    setCancellingId(id);
+    setError(null);
+
+    try {
+      await cancelReservation(id);
+      setReservations((prev) => prev.filter((r) => r.id !== id));
     } catch {
-      setError('Unable to load your reservations. Please make sure the API server is running.');
+      setError('Unable to cancel this reservation.');
     } finally {
-      setLoading(false);
+      setCancellingId(null);
     }
   };
 
@@ -78,55 +93,30 @@ export default function MyReservations() {
     <div className="min-h-screen bg-stone-50">
       <section className="bg-stone-900 py-12 text-center">
         <h1 className="font-serif text-4xl text-white mb-2">My Reservations</h1>
-        <p className="text-stone-400">View your past and upcoming bookings</p>
+        <p className="text-stone-400">Welcome {user.name}</p>
       </section>
 
       <div className="max-w-xl mx-auto px-4 py-10">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 border border-stone-100 text-left mb-8"
-        >
-          <h2 className="font-serif text-xl text-stone-900 mb-4">Sign in</h2>
-          <p className="text-sm text-stone-500 mb-4">
-            Password authentication will be added on the backend.
-          </p>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg bg-amber-700 text-white font-semibold hover:bg-amber-600 transition-colors disabled:opacity-60"
-            >
-              {loading ? 'Loading...' : 'View my reservations'}
-            </button>
-          </div>
-        </form>
+        <div className="flex justify-between items-center mb-6">
+          <p className="text-sm text-stone-600">Your bookings</p>
+          <Link
+            to="/reservation"
+            className="text-sm font-semibold text-amber-700 hover:text-amber-600"
+          >
+            Book a table →
+          </Link>
+        </div>
 
         {loading && <LoadingSpinner label="Loading your reservations..." />}
-        {error && <ErrorMessage message={error} />}
+        {error && <ErrorMessage message={error} onRetry={() => setRetryCount((c) => c + 1)} />}
 
-        {!loading && searched && reservations.length === 0 && !error && (
-          <p className="text-center text-stone-500 py-4">You have no reservations yet.</p>
+        {!loading && !error && reservations.length === 0 && (
+          <p className="text-center text-stone-500 py-4">
+            You have no reservations yet.{' '}
+            <Link to="/reservation" className="text-amber-700 hover:underline">
+              Book a table
+            </Link>
+          </p>
         )}
 
         {!loading && reservations.length > 0 && (
@@ -149,6 +139,17 @@ export default function MyReservations() {
                     {r.status}
                   </span>
                 </div>
+
+                {r.status !== 'cancelled' && (
+                  <button
+                    type="button"
+                    onClick={() => handleCancel(r.id)}
+                    disabled={cancellingId === r.id}
+                    className="mt-4 text-sm text-red-700 hover:text-red-600 disabled:opacity-50"
+                  >
+                    {cancellingId === r.id ? 'Cancelling...' : 'Cancel reservation'}
+                  </button>
+                )}
               </article>
             ))}
           </div>

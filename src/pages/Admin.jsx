@@ -1,45 +1,41 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { getCustomers } from '../api/customers';
 import { getReservations } from '../api/reservations';
 import { getTables } from '../api/tables';
+import { useAuth } from '../context/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
-// page réservée au chef du restaurant pour voir toutes les réservations
-// l'authentification sera ajoutée côté backend par le collègue
+// page employé + patron : voir toutes les réservations du restaurant
 export default function Admin() {
+  const { user } = useAuth();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // incrémenter ce compteur depuis le bouton "Try Again" pour relancer le chargement
   const [retryCount, setRetryCount] = useState(0);
 
-  // se déclenche au premier affichage et à chaque clic sur "Try Again" (via retryCount)
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // charge les 3 ressources en parallèle pour optimiser le temps d'attente
         const [reservations, customers, tables] = await Promise.all([
           getReservations(),
           getCustomers(),
           getTables(),
         ]);
 
-        // dictionnaire { id → "Prénom Nom" } pour retrouver le client d'une réservation
         const customerById = {};
         customers.forEach((c) => {
           customerById[c.id] = `${c.firstName} ${c.lastName}`;
         });
 
-        // dictionnaire { id → numéro de table } pour retrouver la table d'une réservation
         const tableById = {};
         tables.forEach((t) => {
           tableById[t.id] = t.tableNumber;
         });
 
-        // assemble les données enrichies (nom + numéro de table) pour chaque réservation
         const enriched = reservations.map((r) => ({
           id: r.id,
           client: customerById[r.customerId] || 'Unknown',
@@ -50,7 +46,6 @@ export default function Admin() {
           status: r.status,
         }));
 
-        // tri par date décroissante puis par heure décroissante (les plus récentes en premier)
         enriched.sort((a, b) => {
           const dateCompare = b.date.localeCompare(a.date);
           if (dateCompare !== 0) return dateCompare;
@@ -71,11 +66,24 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-stone-50">
       <section className="bg-stone-900 py-12 text-center">
-        <h1 className="font-serif text-4xl text-white mb-2">Admin — Reservations</h1>
-        <p className="text-stone-400">All restaurant bookings (auth to be added on backend)</p>
+        <h1 className="font-serif text-4xl text-white mb-2">Staff — Reservations</h1>
+        <p className="text-stone-400">
+          All restaurant bookings — {user.role === 'boss' ? 'Boss' : 'Employee'} view
+        </p>
       </section>
 
       <section className="py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {user.role === 'boss' && (
+          <div className="mb-6 text-right">
+            <Link
+              to="/manage-menu"
+              className="inline-flex items-center rounded-full bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
+            >
+              Manage menu
+            </Link>
+          </div>
+        )}
+
         {loading && <LoadingSpinner label="Loading reservations..." />}
         {error && (
           <ErrorMessage

@@ -1,33 +1,62 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Reservation from './pages/Reservation';
 import Contact from './pages/Contact';
+import Login from './pages/Login';
 import Admin from './pages/Admin';
+import ManageMenu from './pages/ManageMenu';
 import MyReservations from './pages/MyReservations';
 
 // Composant racine : définit la mise en page globale (navbar + contenu + footer)
 // et déclare toutes les routes accessibles via l'URL
 function App() {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-white">
-        <Navbar />
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/menu" element={<Menu />} />
-            <Route path="/reservation" element={<Reservation />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/my-reservations" element={<MyReservations />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="min-h-screen flex flex-col bg-white">
+          <Navbar />
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/menu" element={<Menu />} />
+              <Route path="/reservation" element={<Reservation />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/my-reservations"
+                element={
+                  <ProtectedRoute roles={['client']}>
+                    <MyReservations />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute roles={['employee', 'boss']}>
+                    <Admin />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-menu"
+                element={
+                  <ProtectedRoute roles={['boss']}>
+                    <ManageMenu />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

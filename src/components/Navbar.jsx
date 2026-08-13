@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 // génère les classes CSS d'un lien de nav selon s'il est actif ou non
 const navLinkClass = ({ isActive }) =>
@@ -13,6 +14,14 @@ const navLinkClass = ({ isActive }) =>
 // sur mobile les liens sont cachés et remplacés par un menu hamburger
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setOpen(false);
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-stone-900/95 backdrop-blur border-b border-amber-900/40 shadow-lg">
@@ -42,23 +51,65 @@ export default function Navbar() {
             </NavLink>
           </div>
 
-          {/* boutons d'action rapide visibles sur tablette et desktop */}
+          {/* boutons selon le rôle connecté */}
           <div className="hidden sm:flex items-center gap-2">
-            <Link
-              to="/my-reservations"
-              className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-800/60 transition-colors"
-            >
-              My Reservations
-            </Link>
-            <Link
-              to="/reservation"
-              className="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 transition-colors"
-            >
-              Book a Table
-            </Link>
+            {!user && (
+              <Link
+                to="/login"
+                className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-800/60 transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
+
+            {user?.role === 'client' && (
+              <Link
+                to="/my-reservations"
+                className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-800/60 transition-colors"
+              >
+                My Reservations
+              </Link>
+            )}
+
+            {(user?.role === 'employee' || user?.role === 'boss') && (
+              <Link
+                to="/admin"
+                className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-800/60 transition-colors"
+              >
+                Reservations
+              </Link>
+            )}
+
+            {user?.role === 'boss' && (
+              <Link
+                to="/manage-menu"
+                className="inline-flex items-center rounded-full border border-amber-500 px-4 py-2 text-sm font-semibold text-amber-100 hover:bg-amber-800/60 transition-colors"
+              >
+                Manage Menu
+              </Link>
+            )}
+
+            {user && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center rounded-full border border-stone-500 px-4 py-2 text-sm font-semibold text-stone-200 hover:bg-stone-800/60 transition-colors"
+              >
+                Logout
+              </button>
+            )}
+
+            {(!user || user.role === 'client') && (
+              <Link
+                to="/reservation"
+                className="inline-flex items-center rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 transition-colors"
+              >
+                Book a Table
+              </Link>
+            )}
           </div>
 
-          {/* bouton hamburger affiché uniquement sur mobile pour ouvrir/fermer le menu */}
+          {/* bouton hamburger affiché uniquement sur mobile */}
           <button
             type="button"
             className="md:hidden p-2 text-stone-200"
@@ -75,7 +126,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* menu déroulant mobile affiché quand open est true */}
+        {/* menu déroulant mobile */}
         {open && (
           <div className="md:hidden pb-4 flex flex-col gap-1">
             <NavLink to="/" end className={navLinkClass} onClick={() => setOpen(false)}>
@@ -90,9 +141,40 @@ export default function Navbar() {
             <NavLink to="/contact" className={navLinkClass} onClick={() => setOpen(false)}>
               Contact
             </NavLink>
-            <NavLink to="/my-reservations" className={navLinkClass} onClick={() => setOpen(false)}>
-              My Reservations
-            </NavLink>
+
+            {!user && (
+              <NavLink to="/login" className={navLinkClass} onClick={() => setOpen(false)}>
+                Sign In
+              </NavLink>
+            )}
+
+            {user?.role === 'client' && (
+              <NavLink to="/my-reservations" className={navLinkClass} onClick={() => setOpen(false)}>
+                My Reservations
+              </NavLink>
+            )}
+
+            {(user?.role === 'employee' || user?.role === 'boss') && (
+              <NavLink to="/admin" className={navLinkClass} onClick={() => setOpen(false)}>
+                Reservations
+              </NavLink>
+            )}
+
+            {user?.role === 'boss' && (
+              <NavLink to="/manage-menu" className={navLinkClass} onClick={() => setOpen(false)}>
+                Manage Menu
+              </NavLink>
+            )}
+
+            {user && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="px-3 py-2 rounded-md text-sm font-medium text-left text-stone-200 hover:bg-amber-800/60"
+              >
+                Logout
+              </button>
+            )}
           </div>
         )}
       </nav>

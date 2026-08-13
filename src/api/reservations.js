@@ -17,3 +17,8 @@ export async function createReservation(reservation) {
     status: reservation.status || 'confirmed',
   });
 }
+
+// annule une réservation côté API (DELETE)
+export async function cancelReservation(id) {
+  await apiClient.delete(`/api/Reservations/${id}`);
+}

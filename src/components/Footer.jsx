@@ -37,8 +37,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/my-reservations" className="hover:text-amber-400 transition-colors">
-                  My Reservations
+                <Link to="/login" className="hover:text-amber-400 transition-colors">
+                  Sign In
                 </Link>
               </li>
             </ul>
@@ -52,11 +52,6 @@ export default function Footer() {
         </div>
         <p className="text-center text-xs text-stone-500 mt-8 pt-6 border-t border-stone-800">
           © {new Date().getFullYear()} Olympique de Marseille — Projet final
-          {' · '}
-          {/* lien discret vers la page admin placé dans le footer pour ne pas encombrer la navbar */}
-          <Link to="/admin" className="hover:text-amber-500 transition-colors">
-            Admin
-          </Link>
         </p>
       </div>
     </footer>
