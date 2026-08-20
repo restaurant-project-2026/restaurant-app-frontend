@@ -68,12 +68,12 @@ export default function Admin() {
       <section className="bg-stone-900 py-12 text-center">
         <h1 className="font-serif text-4xl text-white mb-2">Staff — Reservations</h1>
         <p className="text-stone-400">
-          All restaurant bookings — {user.role === 'boss' ? 'Boss' : 'Employee'} view
+          All restaurant bookings — {user.role === 'admin' ? 'Boss' : 'Employee'} view
         </p>
       </section>
 
       <section className="py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {user.role === 'boss' && (
+        {user.role === 'admin' && (
           <div className="mb-6 text-right">
             <Link
               to="/manage-menu"

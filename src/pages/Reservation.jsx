@@ -89,7 +89,7 @@ export default function Reservation() {
 
   // passe à l'étape suivante uniquement si la validation réussit
   const nextStep = () => {
-    if (validateStep()) setStep((s) => Math.min(s + 1, 2));
+    console.log('form.tableId:', form.tableId); console.log('validateStep:', validateStep()); if (validateStep()) setStep((s) => Math.min(s + 1, 2));
   };
 
   // revient à l'étape précédente et efface le message d'erreur
@@ -435,3 +435,4 @@ export default function Reservation() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+﻿import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
@@ -12,8 +12,6 @@ import Admin from './pages/Admin';
 import ManageMenu from './pages/ManageMenu';
 import MyReservations from './pages/MyReservations';
 
-// Composant racine : définit la mise en page globale (navbar + contenu + footer)
-// et déclare toutes les routes accessibles via l'URL
 function App() {
   return (
     <AuthProvider>
@@ -27,18 +25,11 @@ function App() {
               <Route path="/reservation" element={<Reservation />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
-              <Route
-                path="/my-reservations"
-                element={
-                  <ProtectedRoute roles={['client']}>
-                    <MyReservations />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/my-reservations" element={<MyReservations />} />
               <Route
                 path="/admin"
                 element={
-                  <ProtectedRoute roles={['employee', 'boss']}>
+                  <ProtectedRoute roles={['admin', 'staff']}>
                     <Admin />
                   </ProtectedRoute>
                 }
@@ -46,7 +37,7 @@ function App() {
               <Route
                 path="/manage-menu"
                 element={
-                  <ProtectedRoute roles={['boss']}>
+                  <ProtectedRoute roles={['admin']}>
                     <ManageMenu />
                   </ProtectedRoute>
                 }
@@ -59,5 +50,4 @@ function App() {
     </AuthProvider>
   );
 }
-
 export default App;

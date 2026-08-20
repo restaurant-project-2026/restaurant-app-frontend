@@ -1,43 +1,41 @@
-import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { getDefaultRoute } from '../auth/demoUsers';
+﻿import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { loginUser } from '../api/users';
 import { useAuth } from '../context/AuthContext';
 
-// page de connexion unique, redirige vers la bonne page selon le rôle
 export default function Login() {
-  const { user, login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  if (user) {
-    return <Navigate to={getDefaultRoute(user.role)} replace />;
-  }
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    const result = login(email, password);
-    if (!result.ok) {
-      setError(result.error);
+    try {
+      const data = await loginUser(username, password);
+      login(data);
+      if (data.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/admin');
+      }
+    } catch {
+      setError('Invalid username or password.');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    navigate(getDefaultRoute(result.user.role));
   };
 
   return (
     <div className="min-h-screen bg-stone-50">
       <section className="bg-stone-900 py-12 text-center">
         <h1 className="font-serif text-4xl text-white mb-2">Sign In</h1>
-        <p className="text-stone-400">Client, employee or boss access</p>
+        <p className="text-stone-400">Employee or boss access</p>
       </section>
-
       <div className="max-w-md mx-auto px-4 py-10">
         <form
           onSubmit={handleSubmit}
@@ -48,15 +46,15 @@ export default function Login() {
               {error}
             </p>
           )}
-
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-stone-700 mb-1">Username</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
+                placeholder="ex: admin"
                 className="w-full rounded-lg border border-stone-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none"
               />
             </div>
@@ -78,12 +76,10 @@ export default function Login() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
-
           <div className="mt-6 p-4 bg-stone-50 rounded-lg text-xs text-stone-600 space-y-1">
-            <p className="font-medium text-stone-700">Demo accounts (frontend only)</p>
-            <p>Client — client@test.com / client123</p>
-            <p>Employee — employee@test.com / employee123</p>
-            <p>Boss — boss@test.com / boss123</p>
+            <p className="font-medium text-stone-700">Comptes disponibles</p>
+            <p>Admin — username: admin / password: password123</p>
+            <p>Staff — username: staff1 / password: password123</p>
           </div>
         </form>
       </div>
