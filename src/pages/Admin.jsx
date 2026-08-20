@@ -74,14 +74,7 @@ export default function Admin() {
 
       <section className="py-12 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {user.role === 'admin' && (
-          <div className="mb-6 text-right">
-            <Link
-              to="/manage-menu"
-              className="inline-flex items-center rounded-full bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
-            >
-              Manage menu
-            </Link>
-          </div>
+          <div className="mb-6 flex justify-end gap-3"><Link to="/manage-reservations" className="inline-flex items-center rounded-full bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-600">Manage reservations</Link><Link to="/manage-customers" className="inline-flex items-center rounded-full bg-stone-500 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-400">Manage customers</Link><Link to="/manage-employees" className="inline-flex items-center rounded-full bg-stone-700 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-600">Manage employees</Link><Link to="/manage-menu" className="inline-flex items-center rounded-full bg-amber-700 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">Manage menu</Link></div>
         )}
 
         {loading && <LoadingSpinner label="Loading reservations..." />}
@@ -130,3 +123,6 @@ export default function Admin() {
     </div>
   );
 }
+
+
+

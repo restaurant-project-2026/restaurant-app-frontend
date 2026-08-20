@@ -10,6 +10,9 @@ import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
 import ManageMenu from './pages/ManageMenu';
+import ManageEmployees from './pages/ManageEmployees';
+import ManageCustomers from './pages/ManageCustomers';
+import ManageReservations from './pages/ManageReservations';
 import MyReservations from './pages/MyReservations';
 
 function App() {
@@ -39,6 +42,30 @@ function App() {
                 element={
                   <ProtectedRoute roles={['admin']}>
                     <ManageMenu />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-employees"
+                element={
+                  <ProtectedRoute roles={['admin']}>
+                    <ManageEmployees />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-customers"
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <ManageCustomers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/manage-reservations"
+                element={
+                  <ProtectedRoute roles={['admin', 'staff']}>
+                    <ManageReservations />
                   </ProtectedRoute>
                 }
               />
