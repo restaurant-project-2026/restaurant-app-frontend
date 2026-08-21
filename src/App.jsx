@@ -13,6 +13,8 @@ import ManageMenu from './pages/ManageMenu';
 import ManageEmployees from './pages/ManageEmployees';
 import ManageCustomers from './pages/ManageCustomers';
 import ManageReservations from './pages/ManageReservations';
+import ManageTables from './pages/ManageTables';
+import ReservationDetails from './pages/ReservationDetails';
 import MyReservations from './pages/MyReservations';
 
 function App() {
@@ -29,46 +31,13 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
               <Route path="/my-reservations" element={<MyReservations />} />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute roles={['admin', 'staff']}>
-                    <Admin />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manage-menu"
-                element={
-                  <ProtectedRoute roles={['admin']}>
-                    <ManageMenu />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manage-employees"
-                element={
-                  <ProtectedRoute roles={['admin']}>
-                    <ManageEmployees />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manage-customers"
-                element={
-                  <ProtectedRoute roles={['admin', 'staff']}>
-                    <ManageCustomers />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/manage-reservations"
-                element={
-                  <ProtectedRoute roles={['admin', 'staff']}>
-                    <ManageReservations />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/admin" element={<ProtectedRoute roles={['admin', 'staff']}><Admin /></ProtectedRoute>} />
+              <Route path="/manage-menu" element={<ProtectedRoute roles={['admin']}><ManageMenu /></ProtectedRoute>} />
+              <Route path="/manage-employees" element={<ProtectedRoute roles={['admin']}><ManageEmployees /></ProtectedRoute>} />
+              <Route path="/manage-customers" element={<ProtectedRoute roles={['admin', 'staff']}><ManageCustomers /></ProtectedRoute>} />
+              <Route path="/manage-reservations" element={<ProtectedRoute roles={['admin', 'staff']}><ManageReservations /></ProtectedRoute>} />
+              <Route path="/manage-tables" element={<ProtectedRoute roles={['admin']}><ManageTables /></ProtectedRoute>} />
+              <Route path="/reservation/:id" element={<ProtectedRoute roles={['admin', 'staff']}><ReservationDetails /></ProtectedRoute>} />
             </Routes>
           </main>
           <Footer />
