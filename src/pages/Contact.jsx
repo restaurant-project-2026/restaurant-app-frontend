@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 // page de contact : infos du restaurant, horaires et formulaire de message
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
 
   // met à jour le champ correspondant dans le formulaire à chaque frappe
@@ -14,7 +14,7 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setSent(true);
-    setForm({ name: '', email: '', message: '' });
+    setForm({ name: "", email: "", message: "" });
   };
 
   return (
@@ -28,7 +28,9 @@ export default function Contact() {
         <div className="grid lg:grid-cols-2 gap-10">
           <div className="space-y-6 text-left">
             <div className="bg-white rounded-2xl p-6 shadow-md border border-stone-100">
-              <h2 className="font-serif text-xl text-stone-900 mb-4">Information</h2>
+              <h2 className="font-serif text-xl text-stone-900 mb-4">
+                Information
+              </h2>
               <ul className="space-y-4 text-stone-600">
                 <li className="flex gap-3">
                   <span className="text-amber-700" aria-hidden>
@@ -44,7 +46,10 @@ export default function Contact() {
                   <span className="text-amber-700" aria-hidden>
                     📞
                   </span>
-                  <a href="tel:+97231234567" className="hover:text-amber-700 transition-colors">
+                  <a
+                    href="tel:+97231234567"
+                    className="hover:text-amber-700 transition-colors"
+                  >
                     +972 3 123 4567
                   </a>
                 </li>
@@ -63,7 +68,9 @@ export default function Contact() {
             </div>
 
             <div className="bg-white rounded-2xl p-6 shadow-md border border-stone-100">
-              <h2 className="font-serif text-xl text-stone-900 mb-4">Opening Hours</h2>
+              <h2 className="font-serif text-xl text-stone-900 mb-4">
+                Opening Hours
+              </h2>
               <table className="w-full text-sm text-stone-600">
                 <tbody>
                   <tr className="border-b border-stone-100">
@@ -72,11 +79,15 @@ export default function Contact() {
                   </tr>
                   <tr className="border-b border-stone-100">
                     <td className="py-2 font-medium">Tue – Fri</td>
-                    <td className="py-2 text-right">12:00 – 14:30 / 19:00 – 23:00</td>
+                    <td className="py-2 text-right">
+                      12:00 – 14:30 / 19:00 – 23:00
+                    </td>
                   </tr>
                   <tr className="border-b border-stone-100">
                     <td className="py-2 font-medium">Saturday</td>
-                    <td className="py-2 text-right">12:00 – 15:00 / 19:00 – 00:00</td>
+                    <td className="py-2 text-right">
+                      12:00 – 15:00 / 19:00 – 00:00
+                    </td>
                   </tr>
                   <tr>
                     <td className="py-2 font-medium">Sunday</td>
@@ -92,17 +103,21 @@ export default function Contact() {
               onSubmit={handleSubmit}
               className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-stone-100 text-left"
             >
-              <h2 className="font-serif text-xl text-stone-900 mb-4">Send us a message</h2>
+              <h2 className="font-serif text-xl text-stone-900 mb-4">
+                Send us a message
+              </h2>
 
               {sent && (
                 <p className="mb-4 p-3 bg-green-50 text-green-800 rounded-lg text-sm border border-green-200">
-                  Message sent! We will get back to you within 48 hours. (Local form, demo)
+                  Message sent! We will get back to you within 48 hours.
                 </p>
               )}
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Name</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-1">
+                    Name
+                  </label>
                   <input
                     name="name"
                     value={form.name}
@@ -112,7 +127,9 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-1">
+                    Email
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -123,7 +140,9 @@ export default function Contact() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-1">Message</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-1">
+                    Message
+                  </label>
                   <textarea
                     name="message"
                     value={form.message}
